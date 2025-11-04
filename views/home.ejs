@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Welcome, <%= user.name %> 👋</h1>
+      <p>Role: <%= user.role %></p>
+    </header>
+
+    <main>
+      <section class="user-info">
+        <h2>Profile Overview</h2>
+        <p><strong>Member since:</strong> <%= user.joinedAt %></p>
+
+        <h3>Skills</h3>
+        <ul>
+          <% user.skills.forEach(skill => { %>
+          <li><%= skill %></li>
+          <% }) %>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>Built dynamically using Express + EJS 🚀</p>
+    </footer>
+  </body>
+</html>

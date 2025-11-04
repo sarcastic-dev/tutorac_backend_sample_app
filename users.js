@@ -1,5 +1,6 @@
 // user.js
 const express = require("express");
+const { createUser, getSingleUser } = require("./controllers/users");
 const router = express.Router();
 
 // In-memory data store
@@ -24,23 +25,20 @@ let users = [
   },
 ];
 
-// CREATE - Add a new user
-router.post("/", (req, res) => {
-  const { name, email, phone } = req.body;
-
-  if (!name || !email || !phone) {
-    return res.status(400).json({ message: "All fields are required" });
+const authMiddleware = (req, res, next) => {
+  const token = req.headers["authorization"];
+  if (token === "mysecrettoken") {
+    next();
+  } else {
+    res.status(403).json({ message: "Forbidden: Invalid token" });
   }
+};
 
-  const id = Math.floor(Math.random() * 100000);
-  const newUser = { id, name, email, phone };
-  users.push(newUser);
-
-  res.status(201).json({ message: "User created successfully", user: newUser });
-});
+// CREATE - Add a new user
+router.post("/", createUser(users));
 
 // READ - Get all users
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   // res.json({ data: users });
   res.status(404).json({ data: users });
 });
@@ -51,35 +49,8 @@ router.get("/", (req, res) => {
 
 // DATA
 
-router.get("/data/:someId", (req, res) => {
-  try {
-    // const user = { name: "Test User" };
-    const user = undefined;
-    console.log(user.name); // ❌ This will throw an error
-
-    res.json({ message: "This is executed properly" });
-  } catch (error) {
-    console.error("❌ Error caught:", error.message);
-
-    res.status(500).json({
-      message: "Something went wrong on the server",
-      error: error.message, // Optional: show actual error for learning
-    });
-  }
-});
-
 // READ - Get single user by ID
-router.get("/:id", (req, res) => {
-  console.log("Path Params:", req.params);
-
-  console.log("Query Params:", req.query);
-  const user = users.find((u) => u.id === parseInt(req.params.id));
-  if (!user)
-    return res
-      .status(404)
-      .json({ message: "User not found, please try again" });
-  res.json({ data: user });
-});
+router.get("/:id", getSingleUser(users, "Hello from user route"));
 
 // UPDATE - Update user by ID
 router.put("/:id", (req, res) => {
